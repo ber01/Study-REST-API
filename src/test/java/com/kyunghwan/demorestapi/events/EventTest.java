@@ -1,10 +1,13 @@
 package com.kyunghwan.demorestapi.events;
 
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@RunWith(JUnitParamsRunner.class)
 public class EventTest {
 
     @Test
@@ -33,56 +36,47 @@ public class EventTest {
     }
 
     @Test
-    public void testFree() {
-        // Given, 무료 모임
+    @Parameters
+    public void testFree(int basePrice, int maxPrice, boolean isFree) {
+        // Given
         Event event = Event.builder()
-                .basePrice(0)
-                .maxPrice(0)
+                .basePrice(basePrice)
+                .maxPrice(maxPrice)
                 .build();
         // When
         event.update();
         // Then
-        assertThat(event.isFree()).isTrue();
+        assertThat(event.isFree()).isEqualTo(isFree);
+    }
 
-        // Given, 유료 모임 base price > 0
-        event = Event.builder()
-                .basePrice(100)
-                .maxPrice(0)
-                .build();
-        // When
-        event.update();
-        // Then
-        assertThat(event.isFree()).isFalse();
-
-        // Given, 유료 모임 max price > 0
-        event = Event.builder()
-                .basePrice(0)
-                .maxPrice(100)
-                .build();
-        // When
-        event.update();
-        // Then
-        assertThat(event.isFree()).isFalse();
+    private Object[] parametersForTestFree() {
+        return new Object[] {
+                new Object[] {0, 0, true},
+                new Object[] {100, 0, false},
+                new Object[] {0, 100, false},
+                new Object[] {100, 200, false}
+        };
     }
 
     @Test
-    public void testOffline() {
+    @Parameters
+    public void testOffline(String location, boolean isOffline) {
         // Given, 장소 O, 오프라인 모임
         Event event = Event.builder()
-                .location("KSU 공대 C동")
+                .location(location)
                 .build();
         // When
         event.update();
         // Then
-        assertThat(event.isOffline()).isTrue();
+        assertThat(event.isOffline()).isEqualTo(isOffline);
+    }
 
-        // Given, 장소 X, 온라인 모임
-        event = Event.builder()
-                .build();
-        // When
-        event.update();
-        // Then
-        assertThat(event.isOffline()).isFalse();
-
+    private Object[] parametersForTestOffline() {
+        return new Object[] {
+                new Object[] {"장소 있다", true},
+                new Object[] {null, false},
+                new Object[] {"", false},
+                new Object[] {"   ", false}
+        };
     }
 }
