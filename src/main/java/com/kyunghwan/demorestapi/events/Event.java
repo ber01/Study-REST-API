@@ -27,4 +27,10 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventStatus eventStatus = EventStatus.DARFT;
 
+    public void update() {
+        // update Free
+        this.free = this.basePrice == 0 && this.maxPrice == 0;
+        // update offline
+        this.offline = !(this.location == null || this.location.equals(""));
+    }
 }
