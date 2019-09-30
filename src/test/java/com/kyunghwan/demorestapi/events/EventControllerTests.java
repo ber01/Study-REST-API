@@ -71,14 +71,12 @@ public class EventControllerTests {
                 .andExpect(jsonPath("free").value(false))
                 .andExpect(jsonPath("offline").value(true))
                 .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
-                .andExpect(jsonPath("_links.self").exists())
-                .andExpect(jsonPath("_links.query-events").exists())
-                .andExpect(jsonPath("_links.update-event").exists())
                 .andDo(document("create-event",
                         links(
                                 linkWithRel("self").description("link to self"),
                                 linkWithRel("query-events").description("link to query events"),
-                                linkWithRel("update-event").description("link to update an existing")
+                                linkWithRel("update-event").description("link to update an existing"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header"),
@@ -117,7 +115,8 @@ public class EventControllerTests {
                                 fieldWithPath("eventStatus").description("이벤트 상태"),
                                 fieldWithPath("_links.self.href").description("현재 이벤트"),
                                 fieldWithPath("_links.query-events.href").description("이벤트 목록"),
-                                fieldWithPath("_links.update-event.href").description("현재 이벤트 수정")
+                                fieldWithPath("_links.update-event.href").description("현재 이벤트 수정"),
+                                fieldWithPath("_links.profile.href").description("이벤트 정보")
                         )
                 ))
         ;

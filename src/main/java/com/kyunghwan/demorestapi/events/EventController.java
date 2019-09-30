@@ -2,6 +2,7 @@ package com.kyunghwan.demorestapi.events;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +53,8 @@ public class EventController {
         eventResource.add(linkTo(EventController.class).withRel("query-events"));
         // 자신의 이벤트 업데이트
         eventResource.add(selfLinkBuilder.withRel("update-event"));
+        // 프로필 정보 추가
+        eventResource.add(new Link("/docs/index.html#resource-events-create").withRel("profile"));
 
         return ResponseEntity.created(createdUri).body(eventResource);
     }
