@@ -25,7 +25,7 @@ public class Event {
     private boolean offline;
     private boolean free;
     @Enumerated(EnumType.STRING)
-    private EventStatus eventStatus = EventStatus.DARFT;
+    private EventStatus eventStatus = EventStatus.DRAFT;
 
     public void update() {
         // update Free
