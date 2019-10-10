@@ -3,6 +3,7 @@ package com.kyunghwan.demorestapi.configs;
 import com.kyunghwan.demorestapi.accounts.Account;
 import com.kyunghwan.demorestapi.accounts.AccountRole;
 import com.kyunghwan.demorestapi.accounts.AccountService;
+import com.kyunghwan.demorestapi.common.AppProperties;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -33,14 +34,24 @@ public class AppConfig {
             @Autowired
             AccountService accountService;
 
+            @Autowired
+            AppProperties appProperties;
+
             @Override
             public void run(ApplicationArguments args) throws Exception {
-                Account account = Account.builder()
-                        .email("testId@email.com")
-                        .password("testPassword")
+                Account admin = Account.builder()
+                        .email(appProperties.getAdminUsername())
+                        .password(appProperties.getAdminPassword())
                         .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
                         .build();
-                this.accountService.saveAccount(account);
+                this.accountService.saveAccount(admin);
+
+                Account user = Account.builder()
+                        .email(appProperties.getUserUsername())
+                        .password(appProperties.getUserPassword())
+                        .roles(Set.of(AccountRole.USER))
+                        .build();
+                this.accountService.saveAccount(user);
             }
         };
     }
