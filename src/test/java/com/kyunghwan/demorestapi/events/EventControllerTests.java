@@ -106,7 +106,7 @@ public class EventControllerTests extends BaseControllerTest {
                                 headerWithName(HttpHeaders.LOCATION).description("location header"),
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
                         ),
-                        relaxedResponseFields(
+                        responseFields(
                                 fieldWithPath("id").description("이벤트 번호"),
                                 fieldWithPath("name").description("이벤트 이름"),
                                 fieldWithPath("description").description("이벤트 내용"),
@@ -121,10 +121,11 @@ public class EventControllerTests extends BaseControllerTest {
                                 fieldWithPath("offline").description("오프라인 유/무"),
                                 fieldWithPath("free").description("무료 유/무"),
                                 fieldWithPath("eventStatus").description("이벤트 상태"),
+                                fieldWithPath("manager.id").description("이벤트 생성자의 번호"),
                                 fieldWithPath("_links.self.href").description("현재 이벤트"),
                                 fieldWithPath("_links.query-events.href").description("이벤트 목록"),
                                 fieldWithPath("_links.update-event.href").description("현재 이벤트 수정"),
-                                fieldWithPath("_links.profile.href").description("이벤트 정보")
+                                fieldWithPath("_links.profile.href").description("이벤트 생성 프로필")
                         )
                 ))
         ;
