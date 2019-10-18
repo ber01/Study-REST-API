@@ -13,10 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
+import org.springframework.restdocs.payload.FieldDescriptor;
 import org.springframework.security.oauth2.common.util.Jackson2JsonParser;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
 
@@ -25,6 +29,7 @@ import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.li
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -205,15 +210,28 @@ public class EventControllerTests extends BaseControllerTest {
     }
 
     @Test
-    @TestDescription("30개의 이벤트를 10개씩 두 번째 페이지 조회하기")
+    @TestDescription("이벤트 조회")
+    public void queryEventsTest() throws Exception {
+        // Given, 이벤트 30개 생성
+        IntStream.range(0, 30).forEach(this::generateEvent);
+
+        // When & Then, 두 번째 페이지 조회
+        this.mockMvc.perform(get("/api/events"))
+                .andDo(print())
+                .andExpect(status().isOk())
+        ;
+    }
+
+    @Test
+    @TestDescription("30개의 이벤트를 5개씩 세 번째 페이지 조회하기")
     public void queryEvents() throws Exception {
         // Given, 이벤트 30개 생성
         IntStream.range(0, 30).forEach(this::generateEvent);
 
         // When & Then, 두 번째 페이지 조회
-        this.mockMvc.perform(get("/api/events")
-                        .param("page", "1")
-                        .param("size", "10")
+        this.mockMvc.perform(RestDocumentationRequestBuilders.get("/api/events")
+                        .param("page", "2")
+                        .param("size", "5")
                         .param("sort", "id,DESC"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -221,8 +239,55 @@ public class EventControllerTests extends BaseControllerTest {
                 .andExpect(jsonPath("_embedded.eventList[0]._links.self").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
-                .andDo(document("query-events"))
+                .andDo(document("query-events",
+                        requestParameters(
+                                parameterWithName("page").description("페이지 번호"),
+                                parameterWithName("size").description("조회 할 이벤트 수"),
+                                parameterWithName("sort").description("정렬 방법")
+                        ),
+                        responseHeaders(
+                                headerWithName("Content-Type").description("content type header")
+                        ),
+                        responseFields(
+                                fieldWithPath("_embedded.eventList[0].id").description("번호"),
+                                fieldWithPath("_embedded.eventList[0].name").description("이름"),
+                                fieldWithPath("_embedded.eventList[0].description").description("설명"),
+                                fieldWithPath("_embedded.eventList[0].beginEnrollmentDateTime").description("등록 시작 시간"),
+                                fieldWithPath("_embedded.eventList[0].closeEnrollmentDateTime").description("등록 종료 시간"),
+                                fieldWithPath("_embedded.eventList[0].beginEventDateTime").description("시작 시간"),
+                                fieldWithPath("_embedded.eventList[0].endEventDateTime").description("종료 시간"),
+                                fieldWithPath("_embedded.eventList[0].location").description("장소"),
+                                fieldWithPath("_embedded.eventList[0].basePrice").description("최소 금액"),
+                                fieldWithPath("_embedded.eventList[0].maxPrice").description("최대 금액"),
+                                fieldWithPath("_embedded.eventList[0].limitOfEnrollment").description("최대 인원"),
+                                fieldWithPath("_embedded.eventList[0].offline").description("오프라인 유/무"),
+                                fieldWithPath("_embedded.eventList[0].free").description("무료 유/무"),
+                                fieldWithPath("_embedded.eventList[0].eventStatus").description("형태"),
+                                fieldWithPath("_embedded.eventList[0].manager").description("작성자"),
+                                fieldWithPath("_embedded.eventList[0]._links.self.href").description("현재 이벤트 링크"),
+                                fieldWithPath("_links.first.href").description("첫 페이지"),
+                                fieldWithPath("_links.prev.href").description("이 전 페이지"),
+                                fieldWithPath("_links.self.href").description("현재 페이지"),
+                                fieldWithPath("_links.next.href").description("다음 페이지"),
+                                fieldWithPath("_links.last.href").description("마지막 페이지"),
+                                fieldWithPath("_links.profile.href").description("이벤트 목록 프로필"),
+                                fieldWithPath("page.size").description("페이지 크기"),
+                                fieldWithPath("page.totalElements").description("총 개수"),
+                                fieldWithPath("page.totalPages").description("페이지 개수"),
+                                fieldWithPath("page.number").description("페이지 번호")
+                        ),
+                        links(
+                                linkWithRel("first").description("첫 페이지"),
+                                linkWithRel("prev").description("이 전 페이지"),
+                                linkWithRel("self").description("현재 페이지"),
+                                linkWithRel("next").description("다음 페이지"),
+                                linkWithRel("last").description("마지막 페이지"),
+                                linkWithRel("profile").description("이벤트 목록 조회 프로필")
+                        )
+                ))
         ;
+
+
     }
 
     @Test
@@ -244,7 +309,6 @@ public class EventControllerTests extends BaseControllerTest {
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
                 .andExpect(jsonPath("_links.create-event").exists())
-                .andDo(document("query-events"))
         ;
     }
 
