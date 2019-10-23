@@ -76,9 +76,11 @@ public class EventController {
                                       @CurrentUser Account account) {
         Page<Event> page = this.eventRepository.findAll(pageable);
         PagedResources<Resource<Event>> pagedResources = assembler.toResource(page, e -> new EventResource(e));
-        pagedResources.add(new Link("/docs/index.html#resource-events-list").withRel("profile"));
         if (account != null) {
             pagedResources.add(linkTo(EventController.class).withRel("create-event"));
+            pagedResources.add(new Link("/docs/index.html#resources-events-list-authentication").withRel("profile"));
+        } else {
+            pagedResources.add(new Link("/docs/index.html#resource-events-list").withRel("profile"));
         }
         return ResponseEntity.ok(pagedResources);
     }
@@ -93,10 +95,13 @@ public class EventController {
 
         Event event = optionalEvent.get();
         EventResource eventResource = new EventResource(event);
-        eventResource.add(new Link("/docs/index.html#resources-events-get").withRel("profile"));
         if (event.getManager().equals(currentUser)) {
             eventResource.add(linkTo(EventController.class).slash(event.getId()).withRel("update-event"));
+            eventResource.add(new Link("/docs/index.html#rresources-events-get-equals-user").withRel("profile"));
+        } else {
+            eventResource.add(new Link("/docs/index.html#resources-events-get").withRel("profile"));
         }
+        eventResource.add(linkTo(EventController.class).withRel("query-events"));
         return ResponseEntity.ok(eventResource);
     }
 
@@ -130,6 +135,7 @@ public class EventController {
 
         EventResource eventResource = new EventResource(savedEvent);
         eventResource.add(new Link("/docs/index.html#resources-events-update").withRel("profile"));
+        eventResource.add(linkTo(EventController.class).withRel("query-events"));
 
         return ResponseEntity.ok(eventResource);
     }
