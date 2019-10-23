@@ -478,6 +478,65 @@ public class EventControllerTests extends BaseControllerTest {
     }
 
     @Test
+    @TestDescription("인증된 유저가 기존의 이벤트 하나 조회하기")
+    public void getEventWithAuthentication() throws Exception {
+        // Given, 이벤트 하나 생성
+        Account account = accountRepository.save(
+                Account.builder()
+                        .email("test_test@email.com")
+                        .password("testPassword")
+                        .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
+                .build());
+
+        Event event = this.generateEvent(100, account);
+
+        // When & Then, 하나의 이벤트 조회
+        this.mockMvc.perform(get("/api/events/{id}", event.getId())
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(true)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("name").exists())
+                .andExpect(jsonPath("description").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("get-an-event-authentication",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 토큰")
+                        ),
+                        responseHeaders(
+                                headerWithName("Content-Type").description("content type header")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("이벤트 번호"),
+                                fieldWithPath("name").description("이벤트 이름"),
+                                fieldWithPath("description").description("이벤트 내용"),
+                                fieldWithPath("beginEnrollmentDateTime").description("이벤트 등록 시작 시간"),
+                                fieldWithPath("closeEnrollmentDateTime").description("이벤트 등록 마감 시간"),
+                                fieldWithPath("beginEventDateTime").description("이벤트 시작 시간"),
+                                fieldWithPath("endEventDateTime").description("이벤트 마감 시간"),
+                                fieldWithPath("location").description("이벤트 장소"),
+                                fieldWithPath("basePrice").description("이벤트 참여 기본 요금"),
+                                fieldWithPath("maxPrice").description("이벤트 참여 최대 요금"),
+                                fieldWithPath("limitOfEnrollment").description("이벤트 최대 인원"),
+                                fieldWithPath("offline").description("오프라인 유/무"),
+                                fieldWithPath("free").description("무료 유/무"),
+                                fieldWithPath("eventStatus").description("이벤트 상태"),
+                                fieldWithPath("manager.id").description("이벤트 생성자의 번호"),
+                                fieldWithPath("_links.self.href").description("현재 이벤트"),
+                                fieldWithPath("_links.profile.href").description("이벤트 조회 프로필"),
+                                fieldWithPath("_links.query-events.href").description("이벤트 목록")
+                        ),
+                        links(
+                                linkWithRel("self").description("현재 페이지"),
+                                linkWithRel("profile").description("이벤트 조회 프로필"),
+                                linkWithRel("query-events").description("이벤트 목록")
+                        )
+                ))
+        ;
+    }
+
+    @Test
     @TestDescription("없는 이벤트를 조회하였을 때 404 응답")
     public void getEvent404() throws Exception {
         // When & Then, 하나의 이벤트 조회

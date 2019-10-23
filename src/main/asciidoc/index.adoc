@@ -127,6 +127,13 @@ operation::create-event[snippets='curl-request,http-request,request-headers,requ
 
 operation::get-an-event[snippets='curl-request,http-request,http-response,response-headers,response-fields,links']
 
+[[resources-events-get-authentication]]
+=== (인증 된) 이벤트 조회
+
+`Get` 요청을 사용해서 기존 이벤트 하나를 조회할 수 있다.
+
+operation::get-an-event-authentication[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+
 [[resources-events-get-equals-user]]
 === (이벤트 생성자의) 이벤트 조회
 

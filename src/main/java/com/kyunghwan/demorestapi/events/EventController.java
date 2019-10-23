@@ -98,7 +98,13 @@ public class EventController {
         if (event.getManager().equals(currentUser)) {
             eventResource.add(linkTo(EventController.class).slash(event.getId()).withRel("update-event"));
             eventResource.add(new Link("/docs/index.html#rresources-events-get-equals-user").withRel("profile"));
-        } else {
+        }
+
+        if (currentUser != null && !event.getManager().equals(currentUser)){
+            eventResource.add(new Link("/docs/index.html#resources-events-get-authentication").withRel("profile"));
+        }
+
+        if (currentUser == null){
             eventResource.add(new Link("/docs/index.html#resources-events-get").withRel("profile"));
         }
         eventResource.add(linkTo(EventController.class).withRel("query-events"));
