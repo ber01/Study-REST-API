@@ -19,7 +19,3 @@
 |     JDK      |          JDK 11           |
 | 데이터베이스 |      PostgreSQL, H2       |
 |   빌드 툴    |        maven-3.6.0        |
-
-
-
-## API 문서
